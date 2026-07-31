@@ -1,11 +1,15 @@
-import { config } from "./app/config/config";
-import { app } from "./app";
+import { config } from "./app/config/config.js";
+import { app } from "./app.js";
 import { Server } from "http";
-import seedAdmin from "./app/DB/index.db";
+import seedAdmin from "./app/DB/seedAdmin.js";
+import { prisma } from "./app/DB/prisma.js";
+
 let server: Server;
+
 async function main() {
   try {
-    await mongoose.connect(config.DB as string);
+    prisma.$connect();
+    console.log("Database connected successfully");
     await seedAdmin();
     server = app.listen(config.port, () => {
       console.log(`Example app listening on port ${config.port}`);
@@ -15,17 +19,16 @@ async function main() {
   }
 }
 main();
+
 process.on("unhandledRejection", () => {
-  console.log(`unahandledRejection is detected , shutting down ...`);
+  console.log(`unhandledRejection is detected, shutting down ...`);
   if (server) {
-    server.close(() => {
-      process.exit(1);
-    });
+    server.close(() => process.exit(1));
   }
   process.exit(1);
 });
 
 process.on("uncaughtException", () => {
-  console.log(`uncaughtException is detected , shutting down ...`);
+  console.log(`uncaughtException is detected, shutting down ...`);
   process.exit(1);
 });

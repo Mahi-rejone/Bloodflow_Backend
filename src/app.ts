@@ -5,10 +5,10 @@ import express, {
 } from "express";
 import cookieParser from "cookie-parser";
 import cors from "cors";
-import { config } from "./app/config/config";
-import { globalErrorHandler } from "./app/middleware/globalErrorHandler";
-import { notFound } from "./app/middleware/routeNotFound";
-import router from "./app/routes";
+import { config } from "./app/config/config.js";
+import { globalErrorHandler } from "./app/middleware/globalErrorHandler.js";
+import { notFound } from "./app/middleware/routeNotFound.js";
+import router from "./app/routes/index.js";
 export const app: Application = express();
 
 app.use(express.json());
