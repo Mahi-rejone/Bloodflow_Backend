@@ -11,13 +11,15 @@ model User {
   profileId         String?                @unique
   blogs             Blog[]
   bloodRequests     BloodRequest[]         @relation("Requester")
-  donationsGiven    DonationHistory[]      @relation("Donor")
-  donationsReceived DonationHistory[]      @relation("Recipient")
+  donationsGiven    BloodDonationHistory[]      @relation("Donor")
+  donationsReceived BloodDonationHistory[]      @relation("Recipient")
   events            Event[]
-  profile           DonorRecipientProfile? @relation(fields: [profileId], references: [id])
+  profile           UserProfile? @relation(fields: [profileId], references: [id])
+
+  @@map("Users")
 }
 
-model DonorRecipientProfile {
+model UserProfile {
   id               String     @id @default(uuid())
   img              String?
   bloodGroup       BloodGroup
@@ -31,4 +33,6 @@ model DonorRecipientProfile {
   dateOfBirth      DateTime
   gender           String
   user             User?
+
+  @@map("UserProfiles")
 }

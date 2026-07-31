@@ -20,10 +20,12 @@ model BloodRequest {
   createdAt       DateTime          @default(now())
   neededAt        DateTime
   requester       User              @relation("Requester", fields: [requesterId], references: [id])
-  donationHistory DonationHistory[]
+  donationHistory BloodDonationHistory[]
+
+  @@map("BloodRequests")
 }
 
-model DonationHistory {
+model BloodDonationHistory {
   id           String       @id @default(uuid())
   donorId      String
   recipientId  String
@@ -46,6 +48,8 @@ model Blog {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   author      User     @relation(fields: [authorId], references: [id])
+
+  @@map("Blogs")
 }
 
 model Event {
@@ -59,5 +63,7 @@ model Event {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   organizer   User     @relation(fields: [organizerId], references: [id])
+
+   @@map("Events")
 }
 
