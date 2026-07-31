@@ -1,0 +1,63 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../../src/generated"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model BloodRequest {
+  id              String            @id @default(uuid())
+  requesterId     String
+  bloodGroup      BloodGroup
+  unitsNeeded     Int
+  hospital        String
+  district        String
+  town            String
+  address         String
+  createdAt       DateTime          @default(now())
+  neededAt        DateTime
+  requester       User              @relation("Requester", fields: [requesterId], references: [id])
+  donationHistory DonationHistory[]
+}
+
+model DonationHistory {
+  id           String       @id @default(uuid())
+  donorId      String
+  recipientId  String
+  donationDate DateTime     @default(now())
+  unitDonated  Int
+  reqId        String
+  donor        User         @relation("Donor", fields: [donorId], references: [id])
+  recipient    User         @relation("Recipient", fields: [recipientId], references: [id])
+  bloodRequest BloodRequest @relation(fields: [reqId], references: [id])
+}
+
+model Blog {
+  id          String   @id @default(uuid())
+  title       String
+  slug        String   @unique
+  content     String
+  coverImage  String?
+  authorId    String
+  isPublished Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  author      User     @relation(fields: [authorId], references: [id])
+}
+
+model Event {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  location    String
+  coverImage  String?
+  eventDate   DateTime
+  organizerId String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  organizer   User     @relation(fields: [organizerId], references: [id])
+}
+

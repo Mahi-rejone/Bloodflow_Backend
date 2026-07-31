@@ -1,0 +1,34 @@
+model User {
+  id                String                 @id @default(uuid())
+  username          String                 @unique
+  password          String
+  email             String                 @unique
+  status            UserStatus             @default(ACTIVE)
+  role              UserRole
+  isDeleted         Boolean                @default(false)
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+  profileId         String?                @unique
+  blogs             Blog[]
+  bloodRequests     BloodRequest[]         @relation("Requester")
+  donationsGiven    DonationHistory[]      @relation("Donor")
+  donationsReceived DonationHistory[]      @relation("Recipient")
+  events            Event[]
+  profile           DonorRecipientProfile? @relation(fields: [profileId], references: [id])
+}
+
+model DonorRecipientProfile {
+  id               String     @id @default(uuid())
+  img              String?
+  bloodGroup       BloodGroup
+  phoneNumber      String
+  guardianNumber   String?
+  numberOfDonation Int        @default(0)
+  stateProvince    String
+  district         String
+  town             String
+  address          String
+  dateOfBirth      DateTime
+  gender           String
+  user             User?
+}

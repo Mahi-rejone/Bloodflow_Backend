@@ -1,0 +1,22 @@
+enum UserRole {
+  ADMIN
+  BLOOD_BANK_MANAGER
+  HOSPITAL_REPRESENTATIVE
+  DONOR_RECIPIENT
+}
+
+enum UserStatus {
+  ACTIVE
+  BLOCK
+}
+
+enum BloodGroup {
+  A_POS
+  A_NEG
+  B_POS
+  B_NEG
+  AB_POS
+  AB_NEG
+  O_POS
+  O_NEG
+}

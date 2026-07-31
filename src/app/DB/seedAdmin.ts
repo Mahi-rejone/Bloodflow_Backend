@@ -1,7 +1,7 @@
 import bcrypt from "bcrypt";
-import { UserRole, UserStatus } from "@prisma/client";
 import { prisma } from "./prisma.js";
 import { config } from "../config/config.js";
+import { UserRole, UserStatus } from "../../generated/enums.js";
 
 const seedAdmin = async () => {
   const isAdminExists = await prisma.user.findFirst({
