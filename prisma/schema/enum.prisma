@@ -10,6 +10,12 @@ enum UserStatus {
   BLOCK
 }
 
+enum BloodRequestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETE
+}
+
 enum BloodGroup {
   A_POS
   A_NEG

@@ -26,7 +26,7 @@ model UserProfile {
   phoneNumber      String
   guardianNumber   String?
   numberOfDonation Int        @default(0)
-  stateProvince    String
+  state            String
   district         String
   town             String
   address          String

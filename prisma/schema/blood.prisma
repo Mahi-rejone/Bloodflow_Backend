@@ -1,0 +1,31 @@
+model BloodRequest {
+  id              String            @id @default(uuid())
+  requesterId     String
+  bloodGroup      BloodGroup
+  unitsNeeded     Int
+  status          BloodRequestStatus @default(PENDING)
+  hospital        String
+  state           String
+  district        String
+  town            String
+  address         String
+  isDeleted       Boolean           @default(false)
+  createdAt       DateTime          @default(now())
+  neededAt        DateTime
+  requester       User              @relation("Requester", fields: [requesterId], references: [id])
+  donationHistory BloodDonationHistory[]
+
+  @@map("BloodRequests")
+}
+
+model BloodDonationHistory {
+  id           String       @id @default(uuid())
+  donorId      String
+  recipientId  String
+  donationDate DateTime     @default(now())
+  unitDonated  Int
+  reqId        String
+  donor        User         @relation("Donor", fields: [donorId], references: [id])
+  recipient    User         @relation("Recipient", fields: [recipientId], references: [id])
+  bloodRequest BloodRequest @relation(fields: [reqId], references: [id])
+}
