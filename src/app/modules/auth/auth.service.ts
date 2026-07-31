@@ -2,13 +2,13 @@ import httpStatus from "http-status";
 import bcrypt from "bcrypt";
 import ms from "ms";
 import { JwtPayload } from "jsonwebtoken";
-import { UserRole } from "@prisma/client";
 import AppError from "../../error/AppError.js";
 import { TLogin } from "./auth.interface.js";
 import { prisma } from "../../DB/prisma.js";
 import { config } from "../../config/config.js";
 import { createToken, verifyToken } from "../../utils//auth.utils..js";
 import { userServices } from "../user/user.service.js";
+import { UserRole } from "../../../generated/enums.js";
 
 const login = async (payload: TLogin) => {
   const user = await userServices.isUserExist(payload.email);

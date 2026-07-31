@@ -1,15 +1,14 @@
 import { NextFunction, Request, Response } from "express";
 import { JwtPayload } from "jsonwebtoken";
 import httpStatus from "http-status";
-import { UserStatus } from "@prisma/client";
-import { TUser_Role } from "../modules/user/user.interface.js";
 import catchAsync from "../utils/catchAsync.js";
 import AppError from "../error/AppError.js";
 import { verifyToken } from "../utils/auth.utils..js";
 import { config } from "../config/config.js";
 import { prisma } from "../DB/prisma.js";
+import { UserRole, UserStatus } from "../../generated/enums.js";
 
-const auth = (...allowedRoles: TUser_Role[]) => {
+const auth = (...allowedRoles: UserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
     const token = req.headers.authorization;
     if (!token) {

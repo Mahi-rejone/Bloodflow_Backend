@@ -2,8 +2,8 @@ import httpStatus from "http-status";
 import bcrypt from "bcrypt";
 import AppError from "../../error/AppError.js";
 import { prisma } from "../../DB/prisma.js";
-import { config } from "../../config/config.js";
-import { Prisma } from "@prisma/client";
+import { config } from "../../config/config";
+import { Prisma } from "../../../generated/client";
 
 const isUserExist = async (email: string) => {
   return prisma.user.findUnique({ where: { email } });

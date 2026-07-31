@@ -1,11 +1,11 @@
 import jwt, { JwtPayload } from "jsonwebtoken";
 import ms from "ms";
-import { TUser_Role } from "../modules/user/user.interface.js";
+import { UserRole } from "../../generated/enums";
 
 export const createToken = (
   jwtPayload: {
     id: string;
-    role: TUser_Role;
+    role: UserRole;
     email: string;
   },
   secret: string,

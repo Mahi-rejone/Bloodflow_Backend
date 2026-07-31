@@ -3,7 +3,7 @@ import { validation } from "../../middleware/validation.js";
 import { authValidation } from "./auth.validation.js";
 import { authController } from "./auth.controller.js";
 import auth from "../../middleware/auth.js";
-import { UserRole } from "@prisma/client";
+import { UserRole } from "../../../generated/enums.js";
 
 const router = express.Router();
 router.post(
