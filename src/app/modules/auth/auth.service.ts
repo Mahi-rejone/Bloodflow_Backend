@@ -45,7 +45,6 @@ const login = async (payload: TLogin) => {
   return {
     accessToken,
     refreshToken,
-    needsPasswordChange: false, // wire to real field once/if added to schema
   };
 };
 

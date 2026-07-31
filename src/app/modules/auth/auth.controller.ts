@@ -7,8 +7,13 @@ import sendResponse from "../../utils/sendResponse";
 
 const UserLogin: RequestHandler = catchAsync(async (req, res) => {
   const user: TLogin = req.body;
-  const { accessToken, refreshToken, needsPasswordChange } =
+  const { accessToken, refreshToken } =
     await authServices.login(user);
+  res.cookie("accessToken", accessToken, {
+    secure: false,
+    httpOnly: true,
+    sameSite: "lax",
+  });
   res.cookie("refreshToken", refreshToken, {
     secure: false,
     httpOnly: true,
@@ -18,7 +23,7 @@ const UserLogin: RequestHandler = catchAsync(async (req, res) => {
     success: true,
     statusCode: httpStatus.OK,
     message: "User logged in successfully",
-    data: { token: accessToken, needsPasswordChange },
+    data: null,
   });
 });
 

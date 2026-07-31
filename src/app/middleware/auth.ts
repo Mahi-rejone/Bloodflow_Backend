@@ -10,7 +10,7 @@ import { UserRole, UserStatus } from "../../generated/enums.js";
 
 const auth = (...allowedRoles: UserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization;
+    const token = req.headers.authorization|| req.cookies.accessToken;
     if (!token) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
@@ -46,10 +46,6 @@ const auth = (...allowedRoles: UserRole[]) => {
         "You do not have the necessary permissions to access this resource.",
       );
     }
-
-    // NOTE: passwordChangedAt/isTokenIssuedBeforePasswordChanged check removed —
-    // those fields don't exist on your schema yet. Add them if you want
-    // "logout everywhere on password change" enforced (flagged a few messages back).
 
     if (allowedRoles.length && !allowedRoles.includes(role)) {
       throw new AppError(
