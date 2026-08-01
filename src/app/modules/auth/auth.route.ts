@@ -22,7 +22,7 @@ router.post(
     UserRole.ADMIN,
     UserRole.BLOOD_BANK_MANAGER,
     UserRole.HOSPITAL_REPRESENTATIVE,
-    UserRole.DONOR_RECIPIENT,
+    UserRole.USER,
   ),
   validation(authValidation.changePasswordValidationSchema),
   authController.changePassword,
