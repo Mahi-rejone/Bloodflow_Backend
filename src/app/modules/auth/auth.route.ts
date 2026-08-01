@@ -12,6 +12,10 @@ router.post(
   authController.UserLogin,
 );
 router.post(
+  "/logout",
+  authController.userLogout,
+);
+router.post(
   "/refresh-token",
   validation(authValidation.refreshTokenValidationSchema),
   authController.refreshToken,

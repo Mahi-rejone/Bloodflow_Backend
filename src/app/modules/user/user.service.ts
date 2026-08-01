@@ -39,12 +39,15 @@ const createUserIntoDB = async (payload: TCreateUserPayload) => {
   const result = await prisma.$transaction(async (tx) => {
     const { profile, ...rest } = payload;
     rest.password = hashedPassword;
-    profile!.dateOfBirth = new Date(profile!.dateOfBirth)
+    profile!.dateOfBirth = new Date(profile!.dateOfBirth);
     const createProfile = await tx.userProfile.create({ data: profile! });
     if (!createProfile) {
       throw new AppError(httpStatus.FORBIDDEN, "failed to create user!");
     }
-    const user = await tx.user.create({ data: {profileId: createProfile.id,...rest}, omit: { password: true } });
+    const user = await tx.user.create({
+      data: { profileId: createProfile.id, ...rest },
+      omit: { password: true },
+    });
     if (!user) {
       throw new AppError(httpStatus.FORBIDDEN, "failed to create user!");
     }
@@ -57,6 +60,7 @@ const createUserIntoDB = async (payload: TCreateUserPayload) => {
 const getMe = async (id: string) => {
   const result = await prisma.user.findUnique({
     where: { id },
+    omit: { password: true },
     include: { profile: true },
   });
 

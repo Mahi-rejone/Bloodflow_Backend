@@ -1,4 +1,4 @@
-import { RequestHandler } from "express";
+import { Request, RequestHandler, Response } from "express";
 import catchAsync from "../../utils/catchAsync";
 import { TLogin } from "./auth.interface";
 import { authServices } from "./auth.service";
@@ -7,8 +7,7 @@ import sendResponse from "../../utils/sendResponse";
 
 const UserLogin: RequestHandler = catchAsync(async (req, res) => {
   const user: TLogin = req.body;
-  const { accessToken, refreshToken } =
-    await authServices.login(user);
+  const { accessToken, refreshToken } = await authServices.login(user);
   res.cookie("accessToken", accessToken, {
     secure: false,
     httpOnly: true,
@@ -26,6 +25,20 @@ const UserLogin: RequestHandler = catchAsync(async (req, res) => {
     data: accessToken,
   });
 });
+
+const userLogout: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    res.clearCookie("accessToken");
+    res.clearCookie("refreshToken");
+
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "User logged out successfully",
+      data: null,
+    });
+  },
+);
 
 const refreshToken: RequestHandler = catchAsync(async (req, res) => {
   const { refreshToken } = req.cookies;
@@ -51,6 +64,7 @@ const changePassword: RequestHandler = catchAsync(async (req, res) => {
 
 export const authController = {
   UserLogin,
+  userLogout,
   refreshToken,
   changePassword,
 };
