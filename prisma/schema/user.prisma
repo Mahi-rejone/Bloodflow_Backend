@@ -29,7 +29,7 @@ model UserProfile {
   state            String
   district         String
   town             String
-  address          String
+  address          String?
   dateOfBirth      DateTime
   gender           String
   user             User?

@@ -2,7 +2,7 @@ enum UserRole {
   ADMIN
   BLOOD_BANK_MANAGER
   HOSPITAL_REPRESENTATIVE
-  DONOR_RECIPIENT
+  USER
 }
 
 enum UserStatus {

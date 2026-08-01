@@ -23,7 +23,7 @@ const UserLogin: RequestHandler = catchAsync(async (req, res) => {
     success: true,
     statusCode: httpStatus.OK,
     message: "User logged in successfully",
-    data: null,
+    data: accessToken,
   });
 });
 
@@ -40,7 +40,6 @@ const refreshToken: RequestHandler = catchAsync(async (req, res) => {
 
 const changePassword: RequestHandler = catchAsync(async (req, res) => {
   const password = req.body;
-  console.log(req.user);
   const result = await authServices.ChangePassword(req.user, password);
   sendResponse(res, {
     success: true,

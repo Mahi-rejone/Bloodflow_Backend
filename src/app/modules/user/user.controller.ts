@@ -15,6 +15,18 @@ const createUser: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const getMe: RequestHandler = catchAsync(async (req, res) => {
+  const data = req.user;
+  const result = await userServices.getMe(data.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User retrieved successfully",
+    data: result,
+  });
+});
+
 export const userController = {
   createUser,
+  getMe
 };

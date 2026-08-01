@@ -12,7 +12,7 @@ import router from "./app/routes/index.js";
 export const app: Application = express();
 
 app.use(express.json());
-app.use(cors({ origin: config.origin as string }));
+app.use(cors({ origin: config.origin as string, credentials: true }));
 app.use(cookieParser());
 app.use("/api/v1", router);
 app.get("/", (req: Request, res: Response) => {
