@@ -1,6 +1,6 @@
 model BloodRequest {
   id              String            @id @default(uuid())
-  requesterId     String
+  requesterId     String //reqester 2 ta keno
   bloodGroup      BloodGroup
   unitsNeeded     Int
   status          BloodRequestStatus @default(PENDING)

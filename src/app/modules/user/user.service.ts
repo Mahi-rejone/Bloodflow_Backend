@@ -120,7 +120,6 @@ const getMe = async (id: string) => {
     omit: { password: true },
     include: { profile: true },
   });
-  console.log("Final result before return:", result);
   return result;
 };
 
