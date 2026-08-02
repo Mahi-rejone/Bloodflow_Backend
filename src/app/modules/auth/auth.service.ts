@@ -6,7 +6,7 @@ import AppError from "../../error/AppError.js";
 import { TLogin } from "./auth.interface.js";
 import { prisma } from "../../DB/prisma.js";
 import { config } from "../../config/config.js";
-import { createToken, verifyToken } from "../../utils//auth.utils..js";
+import { createToken, verifyToken } from "../../utils/auth.utils..js";
 import { userServices } from "../user/user.service.js";
 import { UserRole } from "../../../generated/enums.js";
 
@@ -21,16 +21,27 @@ const login = async (payload: TLogin) => {
   if (user.isDeleted) {
     throw new AppError(httpStatus.NOT_FOUND, "user not found!");
   }
+  if (!user.isVerified) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Please verify your email before logging in",
+    );
+  }
   if (
     !(await userServices.isPasswordMatched(payload.password, user.password))
   ) {
     throw new AppError(httpStatus.FORBIDDEN, "Password do not matched!");
   }
 
-  const jwtPayload: { id: string; role: UserRole; email: string;username:string } = {
+  const jwtPayload: {
+    id: string;
+    role: UserRole;
+    email: string;
+    username: string;
+  } = {
     id: user.id,
     role: user.role,
-    username :user.username,
+    username: user.username,
     email: user.email,
   };
   const accessToken = createToken(
