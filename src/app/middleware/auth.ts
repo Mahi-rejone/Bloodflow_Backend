@@ -10,7 +10,7 @@ import { UserRole, UserStatus } from "../../generated/enums.js";
 
 const auth = (...allowedRoles: UserRole[]) => {
   return catchAsync(async (req: Request, res: Response, next: NextFunction) => {
-    const token = req.headers.authorization|| req.cookies.accessToken;
+    const token = req.cookies.accessToken;
     if (!token) {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
@@ -25,7 +25,7 @@ const auth = (...allowedRoles: UserRole[]) => {
       throw new AppError(
         httpStatus.UNAUTHORIZED,
         "You do not have the necessary permissions to access this resource.",
-      );
+      );  
     }
 
     const { id, role, email } = decoded;

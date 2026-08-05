@@ -42,12 +42,17 @@ const userLogout: RequestHandler = catchAsync(
 
 const refreshToken: RequestHandler = catchAsync(async (req, res) => {
   const { refreshToken } = req.cookies;
-  const result = await authServices.RefreshToken(refreshToken);
+  const { accessToken } = await authServices.RefreshToken(refreshToken);
+  res.cookie("accessToken", accessToken, {
+    secure: false,
+    httpOnly: true,
+    sameSite: "lax",
+  });
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
     message: "User access token fetched successfully",
-    data: result,
+    data: accessToken,
   });
 });
 
