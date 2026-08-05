@@ -57,10 +57,39 @@ const resendVerificationCode: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const getAllDonors = catchAsync(async (req, res) => {
+  const { bloodGroup, district, town, state } = req.query;
+  const result = await userServices.getAllDonors({
+    bloodGroup: bloodGroup as any,
+    district: district as string,
+    town: town as string,
+    state: state as string,
+  });
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Donors retrieved successfully",
+    data: result,
+  });
+});
+
+const getDonorById = catchAsync(async (req, res) => {
+  const result = await userServices.getDonorById(req.params.id as string);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Donor profile retrieved successfully",
+    data: result,
+  });
+});
+
+
 export const userController = {
   createUser,
   getMe,
   verifyUser,
   resendVerificationCode,
+  getAllDonors,
+  getDonorById,
 };
 

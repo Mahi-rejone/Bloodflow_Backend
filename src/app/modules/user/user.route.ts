@@ -6,7 +6,6 @@ import auth from "../../middleware/auth.js";
 import { UserRole } from "../../../generated/enums.js";
 import { resendVerificationLimiter } from "../../middleware/rateLimiter.js";
 
-
 const router = express.Router();
 router.post(
   "/create-user",
@@ -18,7 +17,6 @@ router.post(
   validation(userValidation.verifyUserValidationSchema),
   userController.verifyUser,
 );
-
 
 router.post(
   "/resend-verification",
@@ -37,4 +35,9 @@ router.get(
   ),
   userController.getMe,
 );
+
+router.get("/donors", userController.getAllDonors);
+
+router.get("/donors/:id", userController.getDonorById);
+
 export const userRoute = router;

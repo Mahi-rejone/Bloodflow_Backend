@@ -6,13 +6,6 @@ import { config } from "../../config/config";
 import { BloodGroup, Prisma, UserRole } from "../../../generated/client";
 import { sendVerificationEmail } from "../../utils/sendVarificationEmail";
 
-const isUserExist = async (email: string) => {
-  return await prisma.user.findUnique({ where: { email } });
-};
-
-const isPasswordMatched = async (plainText: string, hashedPass: string) => {
-  return bcrypt.compare(plainText, hashedPass);
-};
 type TCreateUserPayload = {
   username: string;
   email: string;
@@ -27,6 +20,21 @@ type TCreateUserPayload = {
     dateOfBirth: Date;
     gender: string;
   };
+};
+
+type TDonorFilters = {
+  bloodGroup?: BloodGroup;
+  state?: string;
+  district?: string;
+  town?: string;
+};
+
+const isUserExist = async (email: string) => {
+  return await prisma.user.findUnique({ where: { email } });
+};
+
+const isPasswordMatched = async (plainText: string, hashedPass: string) => {
+  return bcrypt.compare(plainText, hashedPass);
 };
 
 const createUserIntoDB = async (payload: TCreateUserPayload) => {
@@ -179,7 +187,7 @@ const resendVerificationCodeIntoDB = async (email: string) => {
   }
 
   const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
-  const verifyCodeExpiry = new Date(Date.now() + 3600000); 
+  const verifyCodeExpiry = new Date(Date.now() + 3600000);
 
   const result = await prisma.user.update({
     where: { email },
@@ -203,6 +211,42 @@ const resendVerificationCodeIntoDB = async (email: string) => {
   return result;
 };
 
+const getAllDonors = async (filters: TDonorFilters) => {
+  const { bloodGroup, state, district, town } = filters;
+
+  const result = await prisma.user.findMany({
+    where: {
+      role: UserRole.USER,
+      isDeleted: false,
+      status: "ACTIVE",
+      profile: {
+        ...(bloodGroup && { bloodGroup }),
+        ...(state && { state: { contains: state, mode: "insensitive" } }),
+        ...(district && {
+          district: { contains: district, mode: "insensitive" },
+        }),
+        ...(town && { town: { contains: town, mode: "insensitive" } }),
+      },
+    },
+    omit: { password: true },
+    include: { profile: true },
+    orderBy: { createdAt: "desc" },
+  });
+  return result;
+};
+
+const getDonorById = async (id: string) => {
+  const result = await prisma.user.findFirst({
+    where: { id, role: "USER", isDeleted: false, status: "ACTIVE" },
+    omit: { password: true },
+    include: { profile: true },
+  });
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, "Donor not found!");
+  }
+  return result;
+};
+
 export const userServices = {
   isUserExist,
   isPasswordMatched,
@@ -210,4 +254,6 @@ export const userServices = {
   getMe,
   verifyUserIntoDB,
   resendVerificationCodeIntoDB,
+  getAllDonors,
+  getDonorById,
 };
