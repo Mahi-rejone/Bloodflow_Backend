@@ -27,6 +27,7 @@ type TDonorFilters = {
   state?: string;
   district?: string;
   town?: string;
+  search?: string;
 };
 
 const isUserExist = async (email: string) => {
@@ -212,7 +213,7 @@ const resendVerificationCodeIntoDB = async (email: string) => {
 };
 
 const getAllDonors = async (filters: TDonorFilters) => {
-  const { bloodGroup, state, district, town } = filters;
+  const { bloodGroup, state, district, town, search } = filters;
 
   const result = await prisma.user.findMany({
     where: {
@@ -227,6 +228,27 @@ const getAllDonors = async (filters: TDonorFilters) => {
         }),
         ...(town && { town: { contains: town, mode: "insensitive" } }),
       },
+      ...(search && {
+        OR: [
+          { fullName: { contains: search, mode: "insensitive" } },
+          { username: { contains: search, mode: "insensitive" } },
+          {
+            profile: {
+              is: { town: { contains: search, mode: "insensitive" } },
+            },
+          },
+          {
+            profile: {
+              is: { district: { contains: search, mode: "insensitive" } },
+            },
+          },
+          {
+            profile: {
+              is: { state: { contains: search, mode: "insensitive" } },
+            },
+          },
+        ],
+      }),
     },
     omit: { password: true },
     include: { profile: true },
@@ -234,7 +256,6 @@ const getAllDonors = async (filters: TDonorFilters) => {
   });
   return result;
 };
-
 const getDonorById = async (id: string) => {
   const result = await prisma.user.findFirst({
     where: { id, role: "USER", isDeleted: false, status: "ACTIVE" },

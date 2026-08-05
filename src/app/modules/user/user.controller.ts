@@ -58,12 +58,13 @@ const resendVerificationCode: RequestHandler = catchAsync(async (req, res) => {
 });
 
 const getAllDonors = catchAsync(async (req, res) => {
-  const { bloodGroup, district, town, state } = req.query;
+  const { bloodGroup, district, town, state, search } = req.query;
   const result = await userServices.getAllDonors({
     bloodGroup: bloodGroup as any,
     district: district as string,
     town: town as string,
     state: state as string,
+    search: search as string,
   });
   sendResponse(res, {
     success: true,
