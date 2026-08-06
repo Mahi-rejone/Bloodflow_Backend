@@ -19,7 +19,7 @@ export async function sendVerificationEmail({
 }: SendVerificationEmailProps): Promise<SendVerificationEmailResponse> {
   try {
     await resend.emails.send({
-      from: "onboarding@resend.dev",
+      from: "BloodFlow <support@bloodflow.sayemtech.com>",
       to: email,
       subject: "BloodFlow: Verify your email address",
       react: VerificationEmail({ username, otp }),

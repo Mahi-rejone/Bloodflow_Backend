@@ -1,7 +1,5 @@
 import express from "express";
-
 import { validation } from "../../middleware/validation.js";
-
 import auth from "../../middleware/auth.js";
 import { UserRole } from "../../../generated/enums.js";
 import { bloodRequestValidation } from "./blood.validation.js";
@@ -11,7 +9,40 @@ const router = express.Router();
 
 router.get("/pending", bloodController.BloodRequest);
 
-router.get("/:id", bloodController.getBloodRequestById);
+router.get("/completed-count", bloodController.getCompletedRequestsCount); 
+
+router.get(
+  "/my-donations",
+  auth(
+    UserRole.ADMIN,
+    UserRole.BLOOD_BANK_MANAGER,
+    UserRole.HOSPITAL_REPRESENTATIVE,
+    UserRole.USER,
+  ),
+  bloodController.getMyDonations,
+);
+
+router.get(
+  "/my-requests",
+  auth(
+    UserRole.ADMIN,
+    UserRole.BLOOD_BANK_MANAGER,
+    UserRole.HOSPITAL_REPRESENTATIVE,
+    UserRole.USER,
+  ),
+  bloodController.getMyRequests,
+);
+
+router.get(
+  "/my-pending-donations",
+  auth(
+    UserRole.ADMIN,
+    UserRole.BLOOD_BANK_MANAGER,
+    UserRole.HOSPITAL_REPRESENTATIVE,
+    UserRole.USER,
+  ),
+  bloodController.getMyPendingDonations,
+);
 
 router.post(
   "/create-request",
@@ -24,5 +55,19 @@ router.post(
   validation(bloodRequestValidation.createBloodRequestSchema),
   bloodController.createBloodRequest,
 );
+
+router.post(
+  "/:id/accept",
+  auth(
+    UserRole.ADMIN,
+    UserRole.BLOOD_BANK_MANAGER,
+    UserRole.HOSPITAL_REPRESENTATIVE,
+    UserRole.USER,
+  ),
+  validation(bloodRequestValidation.acceptDonationSchema),
+  bloodController.acceptBloodRequest,
+);
+
+router.get("/:id", bloodController.getBloodRequestById);
 
 export const bloodRequestRoute = router;

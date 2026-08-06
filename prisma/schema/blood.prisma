@@ -25,6 +25,7 @@ model BloodDonationHistory {
   donationDate DateTime     @default(now())
   unitDonated  Int
   reqId        String
+  status       DonationStatus @default(PENDING)
   donor        User         @relation("Donor", fields: [donorId], references: [id])
   recipient    User         @relation("Recipient", fields: [recipientId], references: [id])
   bloodRequest BloodRequest @relation(fields: [reqId], references: [id])

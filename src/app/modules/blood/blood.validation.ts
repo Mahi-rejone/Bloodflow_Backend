@@ -13,7 +13,16 @@ const createBloodRequestSchema = z.object({
     neededAt: z.coerce.date(),
   }),
 });
+const acceptDonationSchema = z.object({
+  body: z.object({
+    units: z
+      .number({ error: "Units is required" })
+      .int()
+      .positive("Units must be a positive number"),
+  }),
+});
 
 export const bloodRequestValidation = {
   createBloodRequestSchema,
+  acceptDonationSchema,
 };

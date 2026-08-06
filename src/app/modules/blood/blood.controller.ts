@@ -38,8 +38,67 @@ const getBloodRequestById = catchAsync(async (req, res) => {
   });
 });
 
+const acceptBloodRequest: RequestHandler = catchAsync(async (req, res) => {
+  const result = await bloodServices.acceptBloodRequest(
+    req.user.id,
+    req.params.id as string,
+    req.body.units,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Contribution accepted successfully",
+    data: result,
+  });
+});
+
+const getCompletedRequestsCount = catchAsync(async (req, res) => {
+  const result = await bloodServices.getCompletedRequestsCount();
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Completed requests count retrieved successfully",
+    data: { count: result },
+  });
+});
+
+const getMyDonations: RequestHandler = catchAsync(async (req, res) => {
+  const result = await bloodServices.getMyDonations(req.user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Your completed donations retrieved successfully",
+    data: result,
+  });
+});
+
+const getMyRequests: RequestHandler = catchAsync(async (req, res) => {
+  const result = await bloodServices.getMyRequests(req.user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Your blood requests retrieved successfully",
+    data: result,
+  });
+});
+
+const getMyPendingDonations: RequestHandler = catchAsync(async (req, res) => {
+  const result = await bloodServices.getMyPendingDonations(req.user.id);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Your pending donations retrieved successfully",
+    data: result,
+  });
+});
+
 export const bloodController = {
   BloodRequest,
   getBloodRequestById,
   createBloodRequest,
+  acceptBloodRequest,
+  getCompletedRequestsCount,
+  getMyDonations,
+  getMyRequests,
+  getMyPendingDonations,
 };
