@@ -2,6 +2,14 @@ import { prisma } from "../../DB/prisma";
 import { BloodGroup } from "../../../generated/client";
 import AppError from "../../error/AppError";
 import httpStatus from "http-status";
+import crypto from "crypto";
+
+const generateOTP = ()=>{
+  const otp = crypto.randomInt(100000, 999999).toString();
+  return otp;
+}
+const otp_ValidityDuration = 30 * 24 * 60 * 60 * 1000; 
+
 
 const createBloodRequest = async (
   requesterId: string,
@@ -97,7 +105,7 @@ const acceptBloodRequest = async (
   }
 
   const existingPending = await prisma.bloodDonationHistory.findFirst({
-    where: { donorId, reqId: requestId, status: "PENDING" },
+    where: { donorId, reqId: requestId, status: "IN_PROGRESS" },
   });
 
   if (existingPending) {
@@ -123,6 +131,9 @@ const acceptBloodRequest = async (
         recipientId: request.requesterId,
         reqId: requestId,
         unitDonated: unitsDonated,
+        otp: generateOTP(),
+        status: "IN_PROGRESS", 
+        otpExpiresAt: new Date(Date.now() + otp_ValidityDuration),
       },
     });
 
@@ -140,6 +151,100 @@ const acceptBloodRequest = async (
   return result;
 };
 
+const getVerifyDonationOtp = async (
+  donorId: string,
+  donationId: string,
+  otp: string,
+) => {
+  const donation = await prisma.bloodDonationHistory.findUnique({
+    where: { id: donationId },
+  });
+  if (!donation)
+    throw new AppError(httpStatus.NOT_FOUND, "Contribution not found!");
+  if (donation.donorId !== donorId) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "This isn't your contribution to verify.",
+    );
+  }
+  if (donation.status === "COMPLETE") {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "This contribution is already verified.",
+    );
+  }
+  if (donation.otpExpiresAt < new Date()) {
+    throw new AppError(
+      httpStatus.BAD_REQUEST,
+      "This code has expired. Ask the requester for a new one.",
+    );
+  }
+  if (donation.otp !== otp) {
+    throw new AppError(httpStatus.BAD_REQUEST, "Incorrect code.");
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    const updated = await tx.bloodDonationHistory.update({
+      where: { id: donationId },
+      data: { status: "COMPLETE" },
+    });
+
+    const totalCompleted = await tx.bloodDonationHistory.aggregate({
+      where: { reqId: donation.reqId, status: "COMPLETE" },
+      _sum: { unitDonated: true },
+    });
+
+    const request = await tx.bloodRequest.findUnique({
+      where: { id: donation.reqId },
+    });
+    if (
+      request &&
+      (totalCompleted._sum.unitDonated ?? 0) >= request.unitsNeeded
+    ) {
+      await tx.bloodRequest.update({
+        where: { id: donation.reqId },
+        data: { status: "COMPLETE" },
+      });
+    }
+
+    return updated;
+  });
+
+  return result;
+};  
+
+const getContributionsForRequest = async (
+  requesterId: string,
+  requestId: string,
+) => {
+  const request = await prisma.bloodRequest.findUnique({
+    where: { id: requestId },
+  });
+  if (!request)
+    throw new AppError(httpStatus.NOT_FOUND, "Blood request not found!");
+  if (request.requesterId !== requesterId) {
+    throw new AppError(
+      httpStatus.FORBIDDEN,
+      "Only the requester can view this.",
+    );
+  }
+
+  return prisma.bloodDonationHistory.findMany({
+    where: { reqId: requestId },
+    include: {
+      donor: { select: { id: true, username: true, fullName: true } },
+    },
+    orderBy: { donationDate: "desc" },
+  });
+};
+
+const getMyContribution = async (donorId: string, requestId: string) => {
+  return prisma.bloodDonationHistory.findFirst({
+    where: { donorId, reqId: requestId },
+    orderBy: { donationDate: "desc" },
+  });
+};
+
 const getCompletedRequestsCount = async () => {
   const count = await prisma.bloodRequest.count({
     where: {
@@ -152,7 +257,7 @@ const getCompletedRequestsCount = async () => {
 
 const getMyDonations = async (donorId: string) => {
   const result = await prisma.bloodDonationHistory.findMany({
-    where: { donorId, status: "CONFIRMED" },
+    where: { donorId, status: "COMPLETE" },
     orderBy: { donationDate: "desc" },
     include: {
       recipient: {
@@ -194,7 +299,7 @@ const getMyRequests = async (requesterId: string) => {
 
 const getMyPendingDonations = async (donorId: string) => {
   const result = await prisma.bloodDonationHistory.findMany({
-    where: { donorId, status: "PENDING" },
+    where: { donorId, status: "IN_PROGRESS" },
     orderBy: { donationDate: "desc" },
     include: {
       recipient: {
@@ -225,4 +330,7 @@ export const bloodServices = {
   getMyDonations,
   getMyRequests,
   getMyPendingDonations,
+  getVerifyDonationOtp,
+  getContributionsForRequest,
+  getMyContribution,
 };

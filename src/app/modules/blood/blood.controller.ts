@@ -52,6 +52,46 @@ const acceptBloodRequest: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const verifyDonationOtp = catchAsync(async (req, res) => {
+  const result = await bloodServices.getVerifyDonationOtp(
+    req.user.id,
+    req.body.donationId,
+    req.body.otp,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Donation verified successfully",
+    data: result,
+  });
+});
+
+const getContributionsForRequest = catchAsync(async (req, res) => {
+  const result = await bloodServices.getContributionsForRequest(
+    req.user.id,
+    req.params.id as string,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Contributions retrieved successfully",
+    data: result,
+  });
+});
+
+const getMyContribution = catchAsync(async (req, res) => {
+  const result = await bloodServices.getMyContribution(
+    req.user.id,
+    req.params.id as string,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Contribution status retrieved",
+    data: result,
+  });
+});
+
 const getCompletedRequestsCount = catchAsync(async (req, res) => {
   const result = await bloodServices.getCompletedRequestsCount();
   sendResponse(res, {
@@ -101,4 +141,8 @@ export const bloodController = {
   getMyDonations,
   getMyRequests,
   getMyPendingDonations,
+  verifyDonationOtp,
+  getContributionsForRequest,
+  getMyContribution,
 };
+  

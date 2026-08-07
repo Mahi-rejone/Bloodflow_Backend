@@ -57,6 +57,38 @@ router.post(
 );
 
 router.post(
+  "/verify-otp",
+  auth(
+    UserRole.ADMIN,
+    UserRole.BLOOD_BANK_MANAGER,
+    UserRole.HOSPITAL_REPRESENTATIVE,
+    UserRole.USER,
+  ),
+  bloodController.verifyDonationOtp,
+);
+router.get(
+  "/:id/contributions",
+  auth(
+    UserRole.ADMIN,
+    UserRole.BLOOD_BANK_MANAGER,
+    UserRole.HOSPITAL_REPRESENTATIVE,
+    UserRole.USER,
+  ),
+  bloodController.getContributionsForRequest,
+);
+router.get(
+  "/:id/my-contribution",
+  auth(
+    UserRole.ADMIN,
+    UserRole.BLOOD_BANK_MANAGER,
+    UserRole.HOSPITAL_REPRESENTATIVE,
+    UserRole.USER,
+  ),
+  bloodController.getMyContribution,
+);
+
+
+router.post(
   "/:id/accept",
   auth(
     UserRole.ADMIN,

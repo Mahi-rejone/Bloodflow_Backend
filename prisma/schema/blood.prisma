@@ -19,14 +19,16 @@ model BloodRequest {
 }
 
 model BloodDonationHistory {
-  id           String       @id @default(uuid())
-  donorId      String
-  recipientId  String
-  donationDate DateTime     @default(now())
-  unitDonated  Int
-  reqId        String
-  status       DonationStatus @default(PENDING)
-  donor        User         @relation("Donor", fields: [donorId], references: [id])
-  recipient    User         @relation("Recipient", fields: [recipientId], references: [id])
-  bloodRequest BloodRequest @relation(fields: [reqId], references: [id])
+  id            String         @id @default(uuid())
+  donorId       String
+  donor         User           @relation("Donor", fields: [donorId], references: [id])
+  recipientId   String
+  recipient     User           @relation("Recipient", fields: [recipientId], references: [id])
+  donationDate  DateTime       @default(now())
+  unitDonated   Int
+  reqId         String
+  bloodRequest  BloodRequest   @relation(fields: [reqId], references: [id])
+  status        DonationStatus @default(IN_PROGRESS)
+  otp           String
+  otpExpiresAt  DateTime
 }
