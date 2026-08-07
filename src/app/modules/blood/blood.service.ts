@@ -297,6 +297,51 @@ const getMyRequests = async (requesterId: string) => {
   return result;
 };
 
+const getMyRequestById = async (userId: string, requestId: string) => {
+  const request = await prisma.bloodRequest.findFirst({
+    where: {
+      id: requestId,
+      requesterId: userId,
+      isDeleted: false,
+    },
+    include: {
+      requester: {
+        select: {
+          id: true,
+          username: true,
+          fullName: true,
+        },
+      },
+      donationHistory: {
+        orderBy: {
+          donationDate: "desc",
+        },
+        include: {
+          donor: {
+            select: {
+              id: true,
+              username: true,
+              fullName: true,
+              profile: {
+                select: {
+                  phoneNumber: true,
+                  bloodGroup: true,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+  });
+
+  if (!request) {
+    throw new AppError(httpStatus.NOT_FOUND, "Blood request not found");
+  }
+
+  return request;
+};
+
 const getMyPendingDonations = async (donorId: string) => {
   const result = await prisma.bloodDonationHistory.findMany({
     where: { donorId, status: "IN_PROGRESS" },
@@ -380,4 +425,5 @@ export const bloodServices = {
   getContributionsForRequest,
   getMyContribution,
   getMyPendingDonationById,
+  getMyRequestById,
 };

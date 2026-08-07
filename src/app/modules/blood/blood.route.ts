@@ -79,6 +79,17 @@ router.get(
 );
 
 router.get(
+  "/my-request/:id",
+  auth(
+    UserRole.ADMIN,
+    UserRole.BLOOD_BANK_MANAGER,
+    UserRole.HOSPITAL_REPRESENTATIVE,
+    UserRole.USER,
+  ),
+  bloodController.getMyRequestById,
+);
+
+router.get(
   "/:id/contributions",
   auth(
     UserRole.ADMIN,

@@ -122,6 +122,20 @@ const getMyRequests: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const getMyRequestById = catchAsync(async (req, res) => {
+  const result = await bloodServices.getMyRequestById(
+    req.user.id,
+    req.params.id as string,
+  );
+
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Blood request retrieved successfully",
+    data: result,
+  });
+});
+
 const getMyPendingDonations: RequestHandler = catchAsync(async (req, res) => {
   const result = await bloodServices.getMyPendingDonations(req.user.id);
   sendResponse(res, {
@@ -160,5 +174,6 @@ export const bloodController = {
   getContributionsForRequest,
   getMyContribution,
   getMyPendingDonationById,
+  getMyRequestById,
 };
   
