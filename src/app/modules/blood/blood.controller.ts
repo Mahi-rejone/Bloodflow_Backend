@@ -132,6 +132,21 @@ const getMyPendingDonations: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const getMyPendingDonationById: RequestHandler = catchAsync(
+  async (req, res) => {
+    const result = await bloodServices.getMyPendingDonationById(
+      req.user.id,
+      req.params.id as string,
+    );
+    sendResponse(res, {
+      success: true,
+      statusCode: httpStatus.OK,
+      message: "Pending donation retrieved successfully",
+      data: result,
+    });
+  },
+);
+
 export const bloodController = {
   BloodRequest,
   getBloodRequestById,
@@ -144,5 +159,6 @@ export const bloodController = {
   verifyDonationOtp,
   getContributionsForRequest,
   getMyContribution,
+  getMyPendingDonationById,
 };
   

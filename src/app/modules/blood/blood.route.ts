@@ -66,6 +66,18 @@ router.post(
   ),
   bloodController.verifyDonationOtp,
 );
+
+router.get(
+  "/my-pending-donations/:id",
+  auth(
+    UserRole.ADMIN,
+    UserRole.BLOOD_BANK_MANAGER,
+    UserRole.HOSPITAL_REPRESENTATIVE,
+    UserRole.USER,
+  ),
+  bloodController.getMyPendingDonationById,
+);
+
 router.get(
   "/:id/contributions",
   auth(

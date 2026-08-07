@@ -167,7 +167,7 @@ const getVerifyDonationOtp = async (
       "This isn't your contribution to verify.",
     );
   }
-  if (donation.status === "COMPLETE") {
+  if (donation.status === "CONFIRMED") {
     throw new AppError(
       httpStatus.BAD_REQUEST,
       "This contribution is already verified.",
@@ -186,11 +186,11 @@ const getVerifyDonationOtp = async (
   const result = await prisma.$transaction(async (tx) => {
     const updated = await tx.bloodDonationHistory.update({
       where: { id: donationId },
-      data: { status: "COMPLETE" },
+      data: { status: "CONFIRMED" },
     });
 
     const totalCompleted = await tx.bloodDonationHistory.aggregate({
-      where: { reqId: donation.reqId, status: "COMPLETE" },
+      where: { reqId: donation.reqId, status: "CONFIRMED" },
       _sum: { unitDonated: true },
     });
 
@@ -257,7 +257,7 @@ const getCompletedRequestsCount = async () => {
 
 const getMyDonations = async (donorId: string) => {
   const result = await prisma.bloodDonationHistory.findMany({
-    where: { donorId, status: "COMPLETE" },
+    where: { donorId, status: "CONFIRMED" },
     orderBy: { donationDate: "desc" },
     include: {
       recipient: {
@@ -321,6 +321,52 @@ const getMyPendingDonations = async (donorId: string) => {
   return result;
 };
 
+const getMyPendingDonationById = async (
+  donorId: string,
+  donationId: string,
+) => {
+  const result = await prisma.bloodDonationHistory.findFirst({
+    where: {
+      id: donationId,
+      donorId,
+      status: "IN_PROGRESS",
+    },
+    include: {
+      recipient: {
+        select: {
+          id: true,
+          username: true,
+          fullName: true,
+          profile: {
+            select: { phoneNumber: true, bloodGroup: true },
+          },
+        },
+      },
+      bloodRequest: {
+        select: {
+          id: true,
+          hospital: true,
+          bloodGroup: true,
+          state: true,
+          district: true,
+          town: true,
+          address: true,
+          unitsNeeded: true,
+          status: true,
+          neededAt: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, "Pending donation not found!");
+  }
+
+  return result;
+};
+
 export const bloodServices = {
   createBloodRequest,
   getAllPendingRequests,
@@ -333,4 +379,5 @@ export const bloodServices = {
   getVerifyDonationOtp,
   getContributionsForRequest,
   getMyContribution,
+  getMyPendingDonationById,
 };

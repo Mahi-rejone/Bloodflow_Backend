@@ -26,7 +26,8 @@ enum BloodGroup {
   O_POS
   O_NEG
 }
+
 enum DonationStatus {
   IN_PROGRESS
-  COMPLETE
+  CONFIRMED
 }

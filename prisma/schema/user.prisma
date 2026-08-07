@@ -1,7 +1,6 @@
 model User {
   id                String                 @id @default(uuid())
   username          String                 @unique
-  fullName          String                 @default("")
   password          String
   email             String                 @unique
   status            UserStatus             @default(ACTIVE)
@@ -10,15 +9,16 @@ model User {
   createdAt         DateTime               @default(now())
   updatedAt         DateTime               @updatedAt
   profileId         String?                @unique
+  fullName          String                 @default("")
   isVerified        Boolean                @default(false)
   verifyCode        String?
   verifyCodeExpiry  DateTime?
   blogs             Blog[]
+  donationsGiven    BloodDonationHistory[] @relation("Donor")
+  donationsReceived BloodDonationHistory[] @relation("Recipient")
   bloodRequests     BloodRequest[]         @relation("Requester")
-  donationsGiven    BloodDonationHistory[]      @relation("Donor")
-  donationsReceived BloodDonationHistory[]      @relation("Recipient")
   events            Event[]
-  profile           UserProfile? @relation(fields: [profileId], references: [id])
+  profile           UserProfile?           @relation(fields: [profileId], references: [id])
 
   @@map("Users")
 }
@@ -30,12 +30,12 @@ model UserProfile {
   phoneNumber      String
   guardianNumber   String?
   numberOfDonation Int        @default(0)
-  state            String
   district         String
   town             String
   address          String?
   dateOfBirth      DateTime
   gender           String
+  state            String
   user             User?
 
   @@map("UserProfiles")
