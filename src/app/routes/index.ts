@@ -2,6 +2,8 @@ import { Router } from "express";
 import { userRoute } from "../modules/user/user.route.js";
 import { authRoute } from "../modules/auth/auth.route.js";
 import { bloodRequestRoute } from "../modules/blood/blood.route.js";
+import { blogRoute } from "../modules/blog/blog.route";
+import { eventRoute } from "../modules/event/event.route";
 
 const router = Router();
 const moduleRoute = [
@@ -16,6 +18,14 @@ const moduleRoute = [
   {
     path: "/blood",
     route: bloodRequestRoute,
+  },
+  { 
+    path: "/blog",
+     route: blogRoute 
+  },
+  {
+     path: "/event",
+      route: eventRoute 
   },
 ];
 
