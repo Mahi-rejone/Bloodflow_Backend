@@ -12,6 +12,14 @@ router.post(
   validation(userValidation.userValidationSchema),
   userController.createUser,
 );
+
+router.post(
+  "/admin-create-user",
+  auth(UserRole.ADMIN),
+  validation(userValidation.userValidationSchema),
+  userController.adminCreateUser,
+);
+
 router.post(
   "/verify",
   validation(userValidation.verifyUserValidationSchema),

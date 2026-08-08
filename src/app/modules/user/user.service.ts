@@ -38,13 +38,27 @@ const isPasswordMatched = async (plainText: string, hashedPass: string) => {
   return bcrypt.compare(plainText, hashedPass);
 };
 
-const createUserIntoDB = async (payload: TCreateUserPayload) => {
+const createUserIntoDB = async (
+  payload: TCreateUserPayload,
+  createdByAdmin = false,
+) => {
   const existingUserByEmail = await prisma.user.findUnique({
     where: { email: payload.email },
   });
 
   if (existingUserByEmail && existingUserByEmail.isVerified) {
     throw new AppError(httpStatus.CONFLICT, "email already exists!");
+  }
+
+  const existingUserByUsername = await prisma.user.findUnique({
+    where: { username: payload.username },
+  });
+
+  if (
+    existingUserByUsername &&
+    existingUserByUsername.email !== payload.email
+  ) {
+    throw new AppError(httpStatus.CONFLICT, "username already exists!");
   }
 
   const hashedPassword = await bcrypt.hash(
@@ -74,8 +88,9 @@ const createUserIntoDB = async (payload: TCreateUserPayload) => {
         where: { id: existingUserByEmail.id },
         data: {
           ...rest,
-          verifyCode,
-          verifyCodeExpiry,
+          isVerified: createdByAdmin,
+          verifyCode: createdByAdmin ? null : verifyCode,
+          verifyCodeExpiry: createdByAdmin ? null : verifyCodeExpiry,
         },
         omit: { password: true },
       });
@@ -97,9 +112,9 @@ const createUserIntoDB = async (payload: TCreateUserPayload) => {
         data: {
           profileId: createProfile.id,
           ...rest,
-          isVerified: false,
-          verifyCode,
-          verifyCodeExpiry,
+          isVerified: createdByAdmin,
+          verifyCode: createdByAdmin ? null : verifyCode,
+          verifyCodeExpiry: createdByAdmin ? null : verifyCodeExpiry,
         },
         omit: { password: true },
       });
@@ -111,18 +126,24 @@ const createUserIntoDB = async (payload: TCreateUserPayload) => {
     });
   }
 
-  const emailResponse = await sendVerificationEmail({
-    email: result.email,
-    username: result.username,
-    otp: verifyCode,
-  });
+  if (!createdByAdmin) {
+    const emailResponse = await sendVerificationEmail({
+      email: result.email,
+      username: result.username,
+      otp: verifyCode,
+    });
 
-  if (!emailResponse.success) {
-    throw new AppError(httpStatus.INTERNAL_SERVER_ERROR, emailResponse.message);
+    if (!emailResponse.success) {
+      throw new AppError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        emailResponse.message,
+      );
+    }
   }
 
   return result;
 };
+
 const getMe = async (id: string) => {
   const result = await prisma.user.findUnique({
     where: { id },
@@ -266,6 +287,7 @@ const getAllDonors = async (filters: TDonorFilters) => {
   });
   return result;
 };
+
 const getDonorById = async (id: string) => {
   const result = await prisma.user.findFirst({
     where: { id, role: "USER", isDeleted: false, status: "ACTIVE" },
@@ -294,17 +316,26 @@ const getSingleUserFromDB = async (id: string) => {
 
 const deleteUserFromDB = async (id: string) => {
   const user = await prisma.user.findFirst({
-    where: { id, isDeleted: false },
+    where: { id },
   });
 
   if (!user) {
     throw new AppError(httpStatus.NOT_FOUND, "User not found");
   }
 
-  const result = await prisma.user.update({
-    where: { id },
-    data: { isDeleted: true },
-    omit: { password: true },
+  const result = await prisma.$transaction(async (tx) => {
+    const deletedUser = await tx.user.delete({
+      where: { id },
+      omit: { password: true },
+    });
+
+    if (user.profileId) {
+      await tx.userProfile.delete({
+        where: { id: user.profileId },
+      });
+    }
+
+    return deletedUser;
   });
 
   return result;

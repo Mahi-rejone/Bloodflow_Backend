@@ -25,6 +25,17 @@ const createUser: RequestHandler = catchAsync(async (req, res) => {
   }
 });
 
+// user.controller.ts
+const adminCreateUser: RequestHandler = catchAsync(async (req, res) => {
+  const result = await userServices.createUserIntoDB(req.body, true);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.CREATED,
+    message: "User successfully created",
+    data: result,
+  });
+});
+
 const getMe: RequestHandler = catchAsync(async (req, res) => {
   const data = req.user;
   const result = await userServices.getMe(data.id);
@@ -118,6 +129,7 @@ const deleteUser = catchAsync(async (req, res) => {
 
 export const userController = {
   createUser,
+  adminCreateUser,
   getMe,
   verifyUser,
   resendVerificationCode,
