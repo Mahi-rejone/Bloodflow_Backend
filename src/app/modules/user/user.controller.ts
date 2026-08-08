@@ -57,6 +57,16 @@ const resendVerificationCode: RequestHandler = catchAsync(async (req, res) => {
   });
 });
 
+const getAllUsers = catchAsync(async (req, res) => {
+  const result = await userServices.getAllUsersFromDB();
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "Users retrieved successfully",
+    data: result,
+  });
+});
+
 const getAllDonors = catchAsync(async (req, res) => {
   const { bloodGroup, district, town, state, search } = req.query;
   const result = await userServices.getAllDonors({
@@ -84,13 +94,37 @@ const getDonorById = catchAsync(async (req, res) => {
   });
 });
 
+const getSingleUser = catchAsync(async (req, res) => {
+  const result = await userServices.getSingleUserFromDB(
+    req.params.id as string,
+  );
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User retrieved successfully",
+    data: result,
+  });
+});
+
+const deleteUser = catchAsync(async (req, res) => {
+  const result = await userServices.deleteUserFromDB(req.params.id as string);
+  sendResponse(res, {
+    success: true,
+    statusCode: httpStatus.OK,
+    message: "User deleted successfully",
+    data: result,
+  });
+});
 
 export const userController = {
   createUser,
   getMe,
   verifyUser,
   resendVerificationCode,
+  getAllUsers,
   getAllDonors,
   getDonorById,
+  getSingleUser,
+  deleteUser,
 };
 

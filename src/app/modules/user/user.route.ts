@@ -35,9 +35,14 @@ router.get(
   ),
   userController.getMe,
 );
+router.get("/get-all-users", auth(UserRole.ADMIN), userController.getAllUsers);
 
 router.get("/donors", userController.getAllDonors);
 
 router.get("/donors/:id", userController.getDonorById);
+
+router.get("/:id", auth(UserRole.ADMIN), userController.getSingleUser);
+
+router.delete("/:id", auth(UserRole.ADMIN), userController.deleteUser);
 
 export const userRoute = router;

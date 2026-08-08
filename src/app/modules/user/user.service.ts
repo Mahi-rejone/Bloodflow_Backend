@@ -212,6 +212,16 @@ const resendVerificationCodeIntoDB = async (email: string) => {
   return result;
 };
 
+const getAllUsersFromDB = async () => {
+  const result = await prisma.user.findMany({
+    where: { isDeleted: false },
+    omit: { password: true },
+    include: { profile: true },
+    orderBy: { createdAt: "desc" },
+  });
+  return result;
+};
+
 const getAllDonors = async (filters: TDonorFilters) => {
   const { bloodGroup, state, district, town, search } = filters;
 
@@ -268,6 +278,38 @@ const getDonorById = async (id: string) => {
   return result;
 };
 
+const getSingleUserFromDB = async (id: string) => {
+  const result = await prisma.user.findFirst({
+    where: { id, isDeleted: false },
+    omit: { password: true },
+    include: { profile: true },
+  });
+
+  if (!result) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  return result;
+};
+
+const deleteUserFromDB = async (id: string) => {
+  const user = await prisma.user.findFirst({
+    where: { id, isDeleted: false },
+  });
+
+  if (!user) {
+    throw new AppError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const result = await prisma.user.update({
+    where: { id },
+    data: { isDeleted: true },
+    omit: { password: true },
+  });
+
+  return result;
+};
+
 export const userServices = {
   isUserExist,
   isPasswordMatched,
@@ -275,6 +317,9 @@ export const userServices = {
   getMe,
   verifyUserIntoDB,
   resendVerificationCodeIntoDB,
+  getAllUsersFromDB,
   getAllDonors,
   getDonorById,
+  getSingleUserFromDB,
+  deleteUserFromDB,
 };
