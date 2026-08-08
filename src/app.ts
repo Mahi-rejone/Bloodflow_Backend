@@ -16,7 +16,7 @@ app.use(cors({ origin: config.origin as string, credentials: true }));
 app.use(cookieParser());
 app.use("/api/v1", router);
 app.get("/", (req: Request, res: Response) => {
-  res.send("Welcome to Server");
+  res.send("Welcome to Blood Flow Server.");
 });
 app.use(globalErrorHandler);
 app.use(notFound);

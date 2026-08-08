@@ -6,20 +6,20 @@
   "scripts": {
     "start": "tsx ./src/server.ts",
     "dev": "tsx watch ./src/server.ts",
-    "build": "tsc"
+    "build": "tsup"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Mahi-rejone/Bloodflow_Backend.git"
+    "url": "git+https://github.com/sayem111103/Bloodflow_Backend.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/Mahi-rejone/Bloodflow_Backend/issues"
+    "url": "https://github.com/sayem111103/Bloodflow_Backend/issues"
   },
-  "homepage": "https://github.com/Mahi-rejone/Bloodflow_Backend#readme",
+  "homepage": "https://github.com/sayem111103/Bloodflow_Backend#readme",
   "dependencies": {
     "@prisma/adapter-neon": "^7.9.1",
     "@prisma/client": "^7.9.1",
@@ -35,6 +35,7 @@
     "react": "^19.2.8",
     "react-email": "^6.9.1",
     "resend": "^6.18.1",
+    "tsup": "^8.5.1",
     "zod": "^4.4.3"
   },
   "devDependencies": {
