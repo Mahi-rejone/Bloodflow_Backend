@@ -5,19 +5,19 @@ import { authServices } from "./auth.service";
 import httpStatus from "http-status";
 import sendResponse from "../../utils/sendResponse";
 
+const isProd = process.env.NODE_ENV === "production";
+
+const cookieOptions = {
+  httpOnly: true,
+  secure: isProd,
+  sameSite: (isProd ? "none" : "lax") as "none" | "lax",
+};
+
 const UserLogin: RequestHandler = catchAsync(async (req, res) => {
   const user: TLogin = req.body;
   const { accessToken, refreshToken } = await authServices.login(user);
-  res.cookie("accessToken", accessToken, {
-    secure: false,
-    httpOnly: true,
-    sameSite: "lax",
-  });
-  res.cookie("refreshToken", refreshToken, {
-    secure: false,
-    httpOnly: true,
-    sameSite: "lax",
-  });
+  res.cookie("accessToken", accessToken, cookieOptions);
+  res.cookie("refreshToken", refreshToken, cookieOptions);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
@@ -28,8 +28,8 @@ const UserLogin: RequestHandler = catchAsync(async (req, res) => {
 
 const userLogout: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
-    res.clearCookie("accessToken");
-    res.clearCookie("refreshToken");
+    res.clearCookie("accessToken", cookieOptions);
+    res.clearCookie("refreshToken", cookieOptions);
 
     sendResponse(res, {
       success: true,
@@ -43,11 +43,7 @@ const userLogout: RequestHandler = catchAsync(
 const refreshToken: RequestHandler = catchAsync(async (req, res) => {
   const { refreshToken } = req.cookies;
   const { accessToken } = await authServices.RefreshToken(refreshToken);
-  res.cookie("accessToken", accessToken, {
-    secure: false,
-    httpOnly: true,
-    sameSite: "lax",
-  });
+  res.cookie("accessToken", accessToken, cookieOptions);
   sendResponse(res, {
     success: true,
     statusCode: httpStatus.OK,
